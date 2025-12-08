@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: login_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin123
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks: [backend]
+
+  web:
+    build: .
+    restart: unless-stopped
+    env_file: .env          # opcional si prefieres esconder secretos
+    environment:
+      FLASK_DEBUG: "1"
+      POSTGRES_DB: login_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_HOST: db
+      SECRET_KEY: "super-secret"
+    depends_on: [db]
+    ports:
+      - "5000:5000"
+    networks: [backend]
+
+volumes:
+  db_data:
+
+networks:
+  backend:
